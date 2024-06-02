@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .todo-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: max-content;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        #todo-input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #add-button {
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #add-button:hover {
+            background-color: #218838;
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        #complete-all-button, #clear-completed-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #complete-all-button:hover, #clear-completed-button:hover {
+            background-color: #0056b3;
+        }
+
+        #todo-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            gap:5px;
+        }
+
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .task-count {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-container">
+        <h1>Todo List</h1>
+        <div class="input-container">
+            <input type="text" id="todo-input" placeholder="Add a new todo">
+            <button id="add-button">Add</button>
+        </div>
+        <div class="actions-container">
+            <button id="complete-all-button">Complete All</button>
+            <button id="clear-completed-button">Clear Completed</button>
+        </div>
+        <ul id="todo-list"></ul>
+        <div class="task-count">
+            Total tasks: <span id="task-count">0</span>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('todo-input');
+            const addButton = document.getElementById('add-button');
+            const completeAllButton = document.getElementById('complete-all-button');
+            const clearCompletedButton = document.getElementById('clear-completed-button');
+            const todoList = document.getElementById('todo-list');
+            const taskCount = document.getElementById('task-count');
+
+            let todos = [];
+
+            addButton.addEventListener('click', addTodo);
+            completeAllButton.addEventListener('click', completeAllTodos);
+            clearCompletedButton.addEventListener('click', clearCompletedTodos);
+
+            function addTodo() {
+                const todoText = input.value.trim();
+                if (todoText === '') return;
+
+                const todoItem = {
+                    id: Date.now(),
+                    text: todoText,
+                    completed: false
+                };
+
+                todos.push(todoItem);
+                renderTodos();
+                input.value = '';
+                input.focus();
+            }
+
+            function deleteTodo(id) {
+                todos = todos.filter(todo => todo.id !== id);
+                renderTodos();
+            }
+
+            function toggleTodoCompletion(id) {
+                todos = todos.map(todo => {
+                    if (todo.id === id) {
+                        return {
+                            ...todo,
+                            completed: !todo.completed
+                        };
+                    }
+                    return todo;
+                });
+                renderTodos();
+            }
+
+            function completeAllTodos() {
+                todos = todos.map(todo => ({
+                    ...todo,
+                    completed: true
+                }));
+                renderTodos();
+            }
+
+            function clearCompletedTodos() {
+                todos = todos.filter(todo => !todo.completed);
+                renderTodos();
+            }
+
+            function renderTodos() {
+                todoList.innerHTML = '';
+                todos.forEach(todo => {
+                    const li = document.createElement('li');
+                    li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                    li.innerHTML = `
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''} onclick="toggleTodoCompletion(${todo.id})">
+                        ${todo.text}
+                        <button onclick="deleteTodo(${todo.id})">Delete</button>
+                    `;
+                    todoList.appendChild(li);
+                });
+                taskCount.textContent = todos.length;
+            }
+
+            window.deleteTodo = deleteTodo;
+            window.toggleTodoCompletion = toggleTodoCompletion;
+        });
+    </script>
+</body>
+</html>
+
